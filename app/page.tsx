@@ -6,6 +6,19 @@ import Image from "next/image";
 const SERVICES = ["Pharma/Corporate", "Vipassana", "Airport", "Outstation"];
 const CARS = ["Innova Crysta", "Ertiga", "Swift Dzire"];
 
+function getMinPickupIST(): string {
+  const now = new Date();
+  const utcMs = now.getTime() + now.getTimezoneOffset() * 60_000;
+  const istMs = utcMs + 5.5 * 60 * 60_000;
+  const minTime = new Date(istMs + 2 * 60 * 60_000);
+  const y = minTime.getFullYear();
+  const mo = String(minTime.getMonth() + 1).padStart(2, "0");
+  const d = String(minTime.getDate()).padStart(2, "0");
+  const h = String(minTime.getHours()).padStart(2, "0");
+  const mi = String(minTime.getMinutes()).padStart(2, "0");
+  return `${y}-${mo}-${d}T${h}:${mi}`;
+}
+
 export default function BookingPage() {
   const [form, setForm] = useState({
     name: "",
@@ -25,6 +38,19 @@ export default function BookingPage() {
     e.preventDefault();
     setStatus("loading");
 
+    if (!/^[6-9]\d{9}$/.test(form.mobile)) {
+      setStatus("error");
+      setMessage("Please enter a valid 10-digit Indian mobile number.");
+      return;
+    }
+
+    const minPickup = getMinPickupIST();
+    if (form.pickupDatetime < minPickup) {
+      setStatus("error");
+      setMessage("Pickup must be at least 2 hours from now (IST).");
+      return;
+    }
+
     try {
       const res = await fetch("/api/book", {
         method: "POST",
@@ -36,7 +62,7 @@ export default function BookingPage() {
 
       if (data.success) {
         setStatus("success");
-        setMessage(`Booking confirmed! ID: ${data.bookingId}`);
+        setMessage(`Booking #${data.bookingId} received. Booking will be confirmed in next 1 hour.`);
         setForm({ name: "", mobile: "", pickupDatetime: "", service: SERVICES[0], car: CARS[0] });
       } else {
         setStatus("error");
@@ -97,8 +123,8 @@ export default function BookingPage() {
               value={form.mobile}
               onChange={handleChange}
               placeholder="10-digit mobile number"
-              pattern="[0-9]{10}"
-              title="Please enter a valid 10-digit mobile number"
+              pattern="[6-9][0-9]{9}"
+              title="Please enter a valid 10-digit Indian mobile number (starts with 6-9)"
               className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-base"
             />
           </div>
@@ -112,6 +138,7 @@ export default function BookingPage() {
               name="pickupDatetime"
               type="datetime-local"
               required
+              min={getMinPickupIST()}
               value={form.pickupDatetime}
               onChange={handleChange}
               className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-base"

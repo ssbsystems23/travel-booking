@@ -11,6 +11,7 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     mobile TEXT NOT NULL,
+    email_id TEXT NOT NULL DEFAULT '',
     pickup_datetime TEXT NOT NULL,
     service TEXT NOT NULL,
     car TEXT NOT NULL,

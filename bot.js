@@ -30,6 +30,7 @@ function checkNewBookings() {
       `New Booking Request #${booking.id}\n\n` +
       `Name: ${booking.name}\n` +
       `Mobile: ${booking.mobile}\n` +
+      `Email: ${booking.email_id}\n` +
       `Pickup: ${booking.pickup_datetime}\n` +
       `Service: ${booking.service}\n` +
       `Car: ${booking.car}\n` +
@@ -92,6 +93,7 @@ bot.on("callback_query", (query) => {
       `Booking #${booking.id} — ${newStatus}\n\n` +
       `Name: ${booking.name}\n` +
       `Mobile: ${booking.mobile}\n` +
+      `Email: ${booking.email_id}\n` +
       `Pickup: ${booking.pickup_datetime}\n` +
       `Service: ${booking.service}\n` +
       `Car: ${booking.car}`;

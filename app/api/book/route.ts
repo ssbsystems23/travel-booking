@@ -6,9 +6,9 @@ const db = require("@/lib/db");
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, mobile, pickupDatetime, service, car } = body;
+    const { name, mobile, emailId, pickupDatetime, service, car } = body;
 
-    if (!name || !mobile || !pickupDatetime || !service || !car) {
+    if (!name || !mobile || !emailId || !pickupDatetime || !service || !car) {
       return NextResponse.json(
         { success: false, error: "All fields are required." },
         { status: 400 }
@@ -36,11 +36,11 @@ export async function POST(request: Request) {
     }
 
     const stmt = db.prepare(`
-      INSERT INTO bookings (name, mobile, pickup_datetime, service, car, status, notified)
-      VALUES (?, ?, ?, ?, ?, 'PENDING', 0)
+      INSERT INTO bookings (name, mobile, email_id, pickup_datetime, service, car, status, notified)
+      VALUES (?, ?, ?, ?, ?, ?, 'PENDING', 0)
     `);
 
-    const result = stmt.run(name, mobile, pickupDatetime, service, car);
+    const result = stmt.run(name, mobile, emailId, pickupDatetime, service, car);
 
     return NextResponse.json({
       success: true,

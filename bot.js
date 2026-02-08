@@ -56,7 +56,7 @@ async function sendBookingEmail(booking, status) {
       <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Car</td><td>${booking.car}</td></tr>
     </table>
     ${isConfirmed ? "<p>We look forward to serving you!</p>" : "<p>We apologize for the inconvenience. Please try again or contact us for assistance.</p>"}
-    <br><p>Thank you,<br>Travel Booking Team</p>
+    <br><p>Thank you,<br>Shri Hanumanth Tours And Travels</p>
   `;
 
   try {

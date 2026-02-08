@@ -23,6 +23,7 @@ export default function BookingPage() {
   const [form, setForm] = useState({
     name: "",
     mobile: "",
+    emailId: "",
     pickupDatetime: "",
     service: SERVICES[0],
     car: CARS[0],
@@ -63,7 +64,7 @@ export default function BookingPage() {
       if (data.success) {
         setStatus("success");
         setMessage(`Booking #${data.bookingId} received. Booking will be confirmed in next 1 hour.`);
-        setForm({ name: "", mobile: "", pickupDatetime: "", service: SERVICES[0], car: CARS[0] });
+        setForm({ name: "", mobile: "", emailId: "", pickupDatetime: "", service: SERVICES[0], car: CARS[0] });
       } else {
         setStatus("error");
         setMessage(data.error || "Something went wrong.");
@@ -75,28 +76,28 @@ export default function BookingPage() {
   }
 
   return (
-    <main className="min-h-svh bg-cover bg-center bg-no-repeat flex items-center justify-center px-4 py-6 sm:p-4" style={{ backgroundImage: "url('/bg.png')" }}>
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-5 sm:p-8">
-        <div className="flex flex-col items-center mb-4">
+    <main className="min-h-svh bg-cover bg-center bg-no-repeat flex items-center justify-center px-4 py-2 sm:p-4" style={{ backgroundImage: "url('/bg.png')" }}>
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-4 sm:p-8">
+        <div className="flex flex-col items-center mb-1 sm:mb-4">
           <Image
             src="/logo.png"
             alt="Logo"
             width={80}
             height={80}
-            className="w-40 h-25 sm:w-40 sm:h-25 object-contain"
+            className="w-24 h-14 sm:w-40 sm:h-25 object-contain"
             priority
           />
         </div>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-1">
+        <h1 className="text-lg sm:text-2xl font-bold text-gray-900 text-center mb-0.5">
           Book Your Ride
         </h1>
-        <p className="text-gray-500 text-center mb-5 sm:mb-6 text-sm">
+        <p className="text-gray-500 text-center mb-2 sm:mb-6 text-xs sm:text-sm">
           Fill in the details below to request a cab
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-1.5 sm:space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="name" className="block text-xs sm:text-sm font-medium text-gray-700 mb-0.5 sm:mb-1">
               Name
             </label>
             <input
@@ -107,12 +108,12 @@ export default function BookingPage() {
               value={form.name}
               onChange={handleChange}
               placeholder="Your full name"
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-base"
+              className="w-full px-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-sm sm:text-base"
             />
           </div>
 
           <div>
-            <label htmlFor="mobile" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="mobile" className="block text-xs sm:text-sm font-medium text-gray-700 mb-0.5 sm:mb-1">
               Mobile Number
             </label>
             <input
@@ -122,15 +123,31 @@ export default function BookingPage() {
               required
               value={form.mobile}
               onChange={handleChange}
-              placeholder="10-digit mobile number"
+              placeholder="10-digit number"
               pattern="[6-9][0-9]{9}"
               title="Please enter a valid 10-digit Indian mobile number (starts with 6-9)"
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-base"
+              className="w-full px-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-sm sm:text-base"
             />
           </div>
 
           <div>
-            <label htmlFor="pickupDatetime" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="emailId" className="block text-xs sm:text-sm font-medium text-gray-700 mb-0.5 sm:mb-1">
+              Email ID
+            </label>
+            <input
+              id="emailId"
+              name="emailId"
+              type="email"
+              required
+              value={form.emailId}
+              onChange={handleChange}
+              placeholder="your@email.com"
+              className="w-full px-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-sm sm:text-base"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="pickupDatetime" className="block text-xs sm:text-sm font-medium text-gray-700 mb-0.5 sm:mb-1">
               Pickup Date & Time
             </label>
             <input
@@ -141,13 +158,13 @@ export default function BookingPage() {
               min={getMinPickupIST()}
               value={form.pickupDatetime}
               onChange={handleChange}
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-base"
+              className="w-full px-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-sm sm:text-base"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             <div>
-              <label htmlFor="service" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="service" className="block text-xs sm:text-sm font-medium text-gray-700 mb-0.5 sm:mb-1">
                 Service
               </label>
               <select
@@ -155,7 +172,7 @@ export default function BookingPage() {
                 name="service"
                 value={form.service}
                 onChange={handleChange}
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white text-base"
+                className="w-full px-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white text-sm sm:text-base"
               >
                 {SERVICES.map((s) => (
                   <option key={s} value={s}>{s}</option>
@@ -164,7 +181,7 @@ export default function BookingPage() {
             </div>
 
             <div>
-              <label htmlFor="car" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="car" className="block text-xs sm:text-sm font-medium text-gray-700 mb-0.5 sm:mb-1">
                 Car
               </label>
               <select
@@ -172,7 +189,7 @@ export default function BookingPage() {
                 name="car"
                 value={form.car}
                 onChange={handleChange}
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white text-base"
+                className="w-full px-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white text-sm sm:text-base"
               >
                 {CARS.map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -184,19 +201,19 @@ export default function BookingPage() {
           <button
             type="submit"
             disabled={status === "loading"}
-            className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base"
+            className="w-full py-2 sm:py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
           >
             {status === "loading" ? "Submitting..." : "Book Now"}
           </button>
         </form>
 
         {status === "success" && (
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm text-center">
+          <div className="mt-2 sm:mt-4 p-2 sm:p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-xs sm:text-sm text-center">
             {message}
           </div>
         )}
         {status === "error" && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm text-center">
+          <div className="mt-2 sm:mt-4 p-2 sm:p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-xs sm:text-sm text-center">
             {message}
           </div>
         )}

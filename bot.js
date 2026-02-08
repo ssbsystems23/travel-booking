@@ -1,14 +1,75 @@
 require("dotenv").config({ path: ".env.local" });
 const TelegramBot = require("node-telegram-bot-api");
 const Database = require("better-sqlite3");
+const nodemailer = require("nodemailer");
 const path = require("path");
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
+const SMTP_HOST = process.env.SMTP_HOST;
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || "587", 10);
+const SMTP_USER = process.env.SMTP_USER;
+const SMTP_PASS = process.env.SMTP_PASS;
 
 if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
   console.error("Missing BOT_TOKEN or ADMIN_CHAT_ID in .env.local");
   process.exit(1);
+}
+
+if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+  console.warn("SMTP env vars missing — email notifications will be skipped.");
+}
+
+const transporter =
+  SMTP_HOST && SMTP_USER && SMTP_PASS
+    ? nodemailer.createTransport({
+        host: SMTP_HOST,
+        port: SMTP_PORT,
+        secure: SMTP_PORT === 465,
+        auth: { user: SMTP_USER, pass: SMTP_PASS },
+      })
+    : null;
+
+async function sendBookingEmail(booking, status) {
+  console.log("Sending email");
+  console.log(transporter);
+  console.log(SMTP_HOST,SMTP_PORT,SMTP_USER,SMTP_PASS);
+  if (!transporter) 
+    {
+      console.log(transporter);
+      console.log('hejheiheihje');
+      return;
+    }
+
+  const isConfirmed = status === "CONFIRMED";
+  const subject = isConfirmed
+    ? `Booking #${booking.id} Confirmed`
+    : `Booking #${booking.id} Rejected`;
+
+  const html = `
+    <h2>Your booking has been ${isConfirmed ? "confirmed" : "rejected"}</h2>
+    <p>Hi ${booking.name},</p>
+    <p>Your booking request <strong>#${booking.id}</strong> has been <strong>${isConfirmed ? "confirmed" : "rejected"}</strong>.</p>
+    <table style="border-collapse:collapse;">
+      <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Pickup</td><td>${booking.pickup_datetime}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Service</td><td>${booking.service}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Car</td><td>${booking.car}</td></tr>
+    </table>
+    ${isConfirmed ? "<p>We look forward to serving you!</p>" : "<p>We apologize for the inconvenience. Please try again or contact us for assistance.</p>"}
+    <br><p>Thank you,<br>Travel Booking Team</p>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: SMTP_USER,
+      to: booking.email_id,
+      subject,
+      html,
+    });
+    console.log(`Email sent to ${booking.email_id} for booking #${booking.id} (${status})`);
+  } catch (err) {
+    console.error(`Failed to send email for booking #${booking.id}:`, err.message);
+  }
 }
 
 const dbPath = path.join(__dirname, "bookings.db");
@@ -107,6 +168,10 @@ bot.on("callback_query", (query) => {
   bot.answerCallbackQuery(query.id, {
     text: `Booking ${newStatus.toLowerCase()}.`,
   });
+
+  if (booking) {
+    sendBookingEmail(booking, newStatus);
+  }
 
   console.log(`Booking #${bookingId} updated to ${newStatus}`);
 });

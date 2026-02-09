@@ -1,27 +1,19 @@
-const Database = require("better-sqlite3");
-const path = require("path");
+// Database is now hosted on Supabase (PostgreSQL).
+// Run the following SQL in the Supabase SQL Editor to create the bookings table:
+//
+// CREATE TABLE bookings (
+//   id BIGSERIAL PRIMARY KEY,
+//   name TEXT NOT NULL,
+//   mobile TEXT NOT NULL,
+//   email_id TEXT NOT NULL DEFAULT '',
+//   pickup_datetime TEXT NOT NULL,
+//   service TEXT NOT NULL,
+//   car TEXT NOT NULL,
+//   status TEXT DEFAULT 'PENDING',
+//   notified BOOLEAN DEFAULT FALSE,
+//   created_at TIMESTAMPTZ DEFAULT NOW()
+// );
 
-const dbPath = path.join(__dirname, "bookings.db");
-const db = new Database(dbPath);
-
-db.pragma("journal_mode = WAL");
-
-db.exec(`
-  CREATE TABLE IF NOT EXISTS bookings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    mobile TEXT NOT NULL,
-    email_id TEXT NOT NULL DEFAULT '',
-    pickup_datetime TEXT NOT NULL,
-    service TEXT NOT NULL,
-    car TEXT NOT NULL,
-    status TEXT DEFAULT 'PENDING',
-    notified INTEGER DEFAULT 0,
-    created_at TEXT DEFAULT (datetime('now'))
-  )
-`);
-
-console.log(`Database created at: ${dbPath}`);
-console.log("Table 'bookings' is ready.");
-
-db.close();
+console.log("This app now uses Supabase instead of local SQLite.");
+console.log("Create the bookings table in your Supabase SQL Editor.");
+console.log("See the SQL above in this file (init-db.js).");

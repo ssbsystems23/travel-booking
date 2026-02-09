@@ -1,8 +1,7 @@
 require("dotenv").config({ path: ".env.local" });
 const TelegramBot = require("node-telegram-bot-api");
-const Database = require("better-sqlite3");
+const { createClient } = require("@supabase/supabase-js");
 const nodemailer = require("nodemailer");
-const path = require("path");
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
@@ -15,6 +14,16 @@ if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
   console.error("Missing BOT_TOKEN or ADMIN_CHAT_ID in .env.local");
   process.exit(1);
 }
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error("Missing SUPABASE_URL or SUPABASE_ANON_KEY in .env.local");
+  process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
   console.warn("SMTP env vars missing — email notifications will be skipped.");
@@ -31,15 +40,7 @@ const transporter =
     : null;
 
 async function sendBookingEmail(booking, status) {
-  console.log("Sending email");
-  console.log(transporter);
-  console.log(SMTP_HOST,SMTP_PORT,SMTP_USER,SMTP_PASS);
-  if (!transporter) 
-    {
-      console.log(transporter);
-      console.log('hejheiheihje');
-      return;
-    }
+  if (!transporter) return;
 
   const isConfirmed = status === "CONFIRMED";
   const subject = isConfirmed
@@ -72,10 +73,6 @@ async function sendBookingEmail(booking, status) {
   }
 }
 
-const dbPath = path.join(__dirname, "bookings.db");
-const db = new Database(dbPath);
-db.pragma("journal_mode = WAL");
-
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 
 console.log("Telegram bot started (polling mode)...");
@@ -83,8 +80,16 @@ console.log("Telegram bot started (polling mode)...");
 // Poll for new bookings every 5 seconds
 const POLL_INTERVAL = 5000;
 
-function checkNewBookings() {
-  const rows = db.prepare("SELECT * FROM bookings WHERE notified = 0").all();
+async function checkNewBookings() {
+  const { data: rows, error } = await supabase
+    .from("bookings")
+    .select("*")
+    .eq("notified", false);
+
+  if (error) {
+    console.error("Error polling bookings:", error.message);
+    return;
+  }
 
   for (const booking of rows) {
     const text =
@@ -110,10 +115,11 @@ function checkNewBookings() {
 
     bot
       .sendMessage(ADMIN_CHAT_ID, text, keyboard)
-      .then(() => {
-        db.prepare("UPDATE bookings SET notified = 1 WHERE id = ?").run(
-          booking.id
-        );
+      .then(async () => {
+        await supabase
+          .from("bookings")
+          .update({ notified: true })
+          .eq("id", booking.id);
         console.log(`Notified admin about booking #${booking.id}`);
       })
       .catch((err) => {
@@ -128,7 +134,7 @@ setInterval(checkNewBookings, POLL_INTERVAL);
 checkNewBookings();
 
 // Handle Accept/Reject button clicks
-bot.on("callback_query", (query) => {
+bot.on("callback_query", async (query) => {
   const data = query.data;
   if (!data) return;
 
@@ -142,12 +148,16 @@ bot.on("callback_query", (query) => {
 
   const newStatus = action === "accept" ? "CONFIRMED" : "REJECTED";
 
-  db.prepare("UPDATE bookings SET status = ? WHERE id = ?").run(
-    newStatus,
-    bookingId
-  );
+  await supabase
+    .from("bookings")
+    .update({ status: newStatus })
+    .eq("id", bookingId);
 
-  const booking = db.prepare("SELECT * FROM bookings WHERE id = ?").get(bookingId);
+  const { data: booking } = await supabase
+    .from("bookings")
+    .select("*")
+    .eq("id", bookingId)
+    .single();
 
   if (booking) {
     const updatedText =
@@ -180,6 +190,5 @@ bot.on("callback_query", (query) => {
 process.on("SIGINT", () => {
   console.log("\nShutting down bot...");
   bot.stopPolling();
-  db.close();
   process.exit(0);
 });

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const db = require("@/lib/db");
+const getSupabase = require("@/lib/db");
 
 export async function POST(request: Request) {
   try {
@@ -35,16 +35,33 @@ export async function POST(request: Request) {
       );
     }
 
-    const stmt = db.prepare(`
-      INSERT INTO bookings (name, mobile, email_id, pickup_datetime, service, car, status, notified)
-      VALUES (?, ?, ?, ?, ?, ?, 'PENDING', 0)
-    `);
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from("bookings")
+      .insert({
+        name,
+        mobile,
+        email_id: emailId,
+        pickup_datetime: pickupDatetime,
+        service,
+        car,
+        status: "PENDING",
+        notified: false,
+      })
+      .select("id")
+      .single();
 
-    const result = stmt.run(name, mobile, emailId, pickupDatetime, service, car);
+    if (error) {
+      console.error("Supabase insert error:", error);
+      return NextResponse.json(
+        { success: false, error: "Failed to save booking." },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      bookingId: result.lastInsertRowid,
+      bookingId: data.id,
     });
   } catch (error) {
     console.error("Booking error:", error);

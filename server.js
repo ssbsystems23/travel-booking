@@ -1,7 +1,25 @@
 const path = require("path");
+const fs = require("fs");
 
 // Save root directory before standalone server changes cwd
 const ROOT_DIR = __dirname;
+
+// --- File logging: write all console output to app.log ---
+const logStream = fs.createWriteStream(path.join(ROOT_DIR, "app.log"), { flags: "a" });
+
+function formatLog(level, args) {
+  const timestamp = new Date().toISOString();
+  const message = args.map((a) => (typeof a === "string" ? a : JSON.stringify(a))).join(" ");
+  return `[${timestamp}] [${level}] ${message}\n`;
+}
+
+const originalLog = console.log.bind(console);
+const originalError = console.error.bind(console);
+const originalWarn = console.warn.bind(console);
+
+console.log = (...args) => { originalLog(...args); logStream.write(formatLog("LOG", args)); };
+console.error = (...args) => { originalError(...args); logStream.write(formatLog("ERROR", args)); };
+console.warn = (...args) => { originalWarn(...args); logStream.write(formatLog("WARN", args)); };
 
 // Load env vars BEFORE anything else so they're available to both
 // Next.js and the Telegram bot. In the cloud, .env.local won't exist

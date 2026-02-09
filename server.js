@@ -5,7 +5,11 @@ const fs = require("fs");
 const ROOT_DIR = __dirname;
 
 // --- File logging: write all console output to app.log ---
-const logStream = fs.createWriteStream(path.join(ROOT_DIR, "app.log"), { flags: "a" });
+// const logStream = fs.createWriteStream(path.join(ROOT_DIR, "app.log"), { flags: "a" });
+
+
+const logPath = "/home/u657594041/domains/shrihanumanthtoursandtravels.com/public_html/app.log";
+const logStream = fs.createWriteStream(logPath, { flags: "a" });
 
 function formatLog(level, args) {
   const timestamp = new Date().toISOString();

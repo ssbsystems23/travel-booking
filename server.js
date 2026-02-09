@@ -3,12 +3,16 @@ const path = require("path");
 // Save root directory before standalone server changes cwd
 const ROOT_DIR = __dirname;
 
+// Load env vars BEFORE anything else so they're available to both
+// Next.js and the Telegram bot. In the cloud, .env.local won't exist
+// and dotenv silently no-ops — env vars come from the cloud provider.
+require("dotenv").config({ path: path.join(ROOT_DIR, ".env.local") });
+
 // Start Next.js server
 require("./.next/standalone/server.js");
 
 // --- Telegram Bot (runs in the same process) ---
 
-require("dotenv").config({ path: path.join(ROOT_DIR, ".env.local") });
 const TelegramBot = require("node-telegram-bot-api");
 const { createClient } = require("@supabase/supabase-js");
 const nodemailer = require("nodemailer");
@@ -19,6 +23,11 @@ const SMTP_HOST = process.env.SMTP_HOST;
 const SMTP_PORT = parseInt(process.env.SMTP_PORT || "587", 10);
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
+
+console.error("[bot] BOT_TOKEN:", BOT_TOKEN ? "set" : "MISSING");
+console.error("[bot] ADMIN_CHAT_ID:", ADMIN_CHAT_ID ? "set" : "MISSING");
+console.error("[bot] SUPABASE_URL:", process.env.SUPABASE_URL ? "set" : "MISSING");
+console.error("[bot] SUPABASE_ANON_KEY:", process.env.SUPABASE_ANON_KEY ? "set" : "MISSING");
 
 if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
   console.warn("Missing BOT_TOKEN or ADMIN_CHAT_ID — Telegram bot will not start.");
@@ -73,7 +82,7 @@ if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
           subject,
           html,
         });
-        console.log(`Email sent to ${booking.email_id} for booking #${booking.id} (${status})`);
+        console.error(`Email sent to ${booking.email_id} for booking #${booking.id} (${status})`);
       } catch (err) {
         console.error(`Failed to send email for booking #${booking.id}:`, err.message);
       }
@@ -81,7 +90,11 @@ if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
 
     const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 
-    console.log("Telegram bot started (polling mode)...");
+    console.error("[bot] Telegram bot started (polling mode)...");
+
+    bot.on("polling_error", (err) => {
+      console.error("[bot] Telegram polling error:", err.message);
+    });
 
     const POLL_INTERVAL = 5000;
 
@@ -92,8 +105,12 @@ if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
         .eq("notified", false);
 
       if (error) {
-        console.error("Error polling bookings:", error.message);
+        console.error("[bot] Error polling bookings:", error.message);
         return;
+      }
+
+      if (rows && rows.length > 0) {
+        console.error(`[bot] Found ${rows.length} new booking(s) to notify.`);
       }
 
       for (const booking of rows) {
@@ -125,7 +142,7 @@ if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
               .from("bookings")
               .update({ notified: true })
               .eq("id", booking.id);
-            console.log(`Notified admin about booking #${booking.id}`);
+            console.error(`Notified admin about booking #${booking.id}`);
           })
           .catch((err) => {
             console.error(`Failed to send message for booking #${booking.id}:`, err.message);
@@ -185,11 +202,11 @@ if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
         sendBookingEmail(booking, newStatus);
       }
 
-      console.log(`Booking #${bookingId} updated to ${newStatus}`);
+      console.error(`Booking #${bookingId} updated to ${newStatus}`);
     });
 
     process.on("SIGINT", () => {
-      console.log("\nShutting down bot...");
+      console.error("\nShutting down bot...");
       bot.stopPolling();
       process.exit(0);
     });

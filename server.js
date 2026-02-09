@@ -4,11 +4,10 @@ const fs = require("fs");
 // Save root directory before standalone server changes cwd
 const ROOT_DIR = __dirname;
 
-// --- File logging: write all console output to app.log ---
-// const logStream = fs.createWriteStream(path.join(ROOT_DIR, "app.log"), { flags: "a" });
-
-
-const logPath = "/home/u657594041/domains/shrihanumanthtoursandtravels.com/public_html/app.log";
+// --- File logging: write all console output to public/app.log ---
+const standalonePublic = path.join(ROOT_DIR, ".next", "standalone", "public");
+const publicDir = fs.existsSync(standalonePublic) ? standalonePublic : path.join(ROOT_DIR, "public");
+const logPath = path.join(publicDir, "app.log");
 const logStream = fs.createWriteStream(logPath, { flags: "a" });
 
 function formatLog(level, args) {

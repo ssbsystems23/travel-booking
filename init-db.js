@@ -14,6 +14,15 @@
 //   created_at TIMESTAMPTZ DEFAULT NOW()
 // );
 
+// Also create the logs table for application logging:
+//
+// CREATE TABLE logs (
+//   id BIGSERIAL PRIMARY KEY,
+//   level TEXT NOT NULL,
+//   message TEXT NOT NULL,
+//   created_at TIMESTAMPTZ DEFAULT NOW()
+// );
+
 console.log("This app now uses Supabase instead of local SQLite.");
-console.log("Create the bookings table in your Supabase SQL Editor.");
+console.log("Create the bookings and logs tables in your Supabase SQL Editor.");
 console.log("See the SQL above in this file (init-db.js).");

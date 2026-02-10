@@ -1,35 +1,72 @@
 const path = require("path");
-const fs = require("fs");
 
 // Save root directory before standalone server changes cwd
 const ROOT_DIR = __dirname;
 
-// --- File logging: write all console output to public/app.log ---
-const standalonePublic = path.join(process.cwd(), "public_html", "logs");
-console.error(standalonePublic)
-//const publicDir = fs.existsSync(standalonePublic) ? standalonePublic : path.join(ROOT_DIR, "public");
-const logPath = path.join(process.cwd(), "public_html", "logs", "app.log");
-console.log(logPath);
-const logStream = fs.createWriteStream("/home/u657594041/domains/shrihanumanthtoursandtravels.com/public_html/public", { flags: "a" });
+// Load env vars BEFORE anything else so they're available to both
+// Next.js and the Telegram bot. In the cloud, .env.local won't exist
+// and dotenv silently no-ops — env vars come from the cloud provider.
+require("dotenv").config({ path: path.join(ROOT_DIR, ".env.local") });
 
-function formatLog(level, args) {
-  const timestamp = new Date().toISOString();
+// --- Database logging: write all console output to Supabase logs table ---
+const { createClient } = require("@supabase/supabase-js");
+
+let logSupabase = null;
+if (process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
+  logSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+}
+
+function writeLogToDb(level, args) {
+  if (!logSupabase) return;
   const message = args.map((a) => (typeof a === "string" ? a : JSON.stringify(a))).join(" ");
-  return `[${timestamp}] [${level}] ${message}\n`;
+  // Fire-and-forget — never block the caller
+  logSupabase.from("logs").insert({ level, message }).then(({ error }) => {
+    if (error) originalError("[log-db] Failed to write log:", error.message);
+  });
 }
 
 const originalLog = console.log.bind(console);
 const originalError = console.error.bind(console);
 const originalWarn = console.warn.bind(console);
 
-console.log = (...args) => { originalLog(...args); logStream.write(formatLog("LOG", args)); };
-console.error = (...args) => { originalError(...args); logStream.write(formatLog("ERROR", args)); };
-console.warn = (...args) => { originalWarn(...args); logStream.write(formatLog("WARN", args)); };
+console.log = (...args) => { originalLog(...args); writeLogToDb("LOG", args); };
+console.error = (...args) => { originalError(...args); writeLogToDb("ERROR", args); };
+console.warn = (...args) => { originalWarn(...args); writeLogToDb("WARN", args); };
 
-// Load env vars BEFORE anything else so they're available to both
-// Next.js and the Telegram bot. In the cloud, .env.local won't exist
-// and dotenv silently no-ops — env vars come from the cloud provider.
-require("dotenv").config({ path: path.join(ROOT_DIR, ".env.local") });
+// --- Nightly log cleanup: delete all logs every midnight IST ---
+function scheduleNightlyCleanup() {
+  if (!logSupabase) return;
+
+  function msUntilMidnightIST() {
+    const now = new Date();
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const istNow = new Date(now.getTime() + istOffset);
+    const istMidnight = new Date(istNow);
+    istMidnight.setUTCHours(0, 0, 0, 0);
+    istMidnight.setUTCDate(istMidnight.getUTCDate() + 1);
+    return istMidnight.getTime() - istNow.getTime();
+  }
+
+  async function deleteAllLogs() {
+    // Supabase requires a filter for delete — use created_at is not null to match all
+    const { error } = await logSupabase
+      .from("logs")
+      .delete()
+      .not("created_at", "is", null);
+    if (error) {
+      originalError("[log-db] Nightly cleanup failed:", error.message);
+    } else {
+      originalLog("[log-db] Nightly cleanup complete — all logs deleted.");
+    }
+    // Schedule next cleanup in ~24h
+    setTimeout(deleteAllLogs, 24 * 60 * 60 * 1000);
+  }
+
+  setTimeout(deleteAllLogs, msUntilMidnightIST());
+  originalLog(`[log-db] Nightly cleanup scheduled in ${Math.round(msUntilMidnightIST() / 60000)} minutes.`);
+}
+
+scheduleNightlyCleanup();
 
 // Start Next.js server
 require("./.next/standalone/server.js");
@@ -37,7 +74,6 @@ require("./.next/standalone/server.js");
 // --- Telegram Bot (runs in the same process) ---
 
 const TelegramBot = require("node-telegram-bot-api");
-const { createClient } = require("@supabase/supabase-js");
 const nodemailer = require("nodemailer");
 
 const BOT_TOKEN = process.env.BOT_TOKEN;

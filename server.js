@@ -78,14 +78,12 @@ require("./.next/standalone/server.js");
 // --- Telegram Bot (runs in the same process) ---
 
 const TelegramBot = require("node-telegram-bot-api");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
-const SMTP_HOST = process.env.SMTP_HOST;
-const SMTP_PORT = parseInt(process.env.SMTP_PORT || "587", 10);
-const SMTP_USER = process.env.SMTP_USER;
-const SMTP_PASS = process.env.SMTP_PASS;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const EMAIL_FROM = process.env.EMAIL_FROM;
 
 console.log("[bot] BOT_TOKEN:", BOT_TOKEN ? "set" : "MISSING");
 console.log("[bot] ADMIN_CHAT_ID:", ADMIN_CHAT_ID ? "set" : "MISSING");
@@ -103,22 +101,14 @@ if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
   } else {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
-      console.warn("SMTP env vars missing — email notifications will be skipped.");
+    if (!RESEND_API_KEY || !EMAIL_FROM) {
+      console.warn("RESEND_API_KEY or EMAIL_FROM missing — email notifications will be skipped.");
     }
 
-    const transporter =
-      SMTP_HOST && SMTP_USER && SMTP_PASS
-        ? nodemailer.createTransport({
-            host: SMTP_HOST,
-            port: SMTP_PORT,
-            secure: SMTP_PORT === 465,
-            auth: { user: SMTP_USER, pass: SMTP_PASS },
-          })
-        : null;
+    const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
     async function sendBookingEmail(booking, status) {
-      if (!transporter) return;
+      if (!resend || !EMAIL_FROM) return;
 
       const isConfirmed = status === "CONFIRMED";
       const subject = isConfirmed
@@ -139,8 +129,8 @@ if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
       `;
 
       try {
-        await transporter.sendMail({
-          from: SMTP_USER,
+        await resend.emails.send({
+          from: EMAIL_FROM,
           to: booking.email_id,
           subject,
           html,

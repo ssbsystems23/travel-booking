@@ -68,6 +68,9 @@ function scheduleNightlyCleanup() {
 
 scheduleNightlyCleanup();
 
+// Bind to 0.0.0.0 so Railway (and other cloud platforms) can route traffic
+process.env.HOSTNAME = process.env.HOSTNAME || "0.0.0.0";
+
 // Start Next.js server
 require("./.next/standalone/server.js");
 

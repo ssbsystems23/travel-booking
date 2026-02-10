@@ -69,7 +69,8 @@ function scheduleNightlyCleanup() {
 scheduleNightlyCleanup();
 
 // Bind to 0.0.0.0 so Railway (and other cloud platforms) can route traffic
-process.env.HOSTNAME = process.env.HOSTNAME || "0.0.0.0";
+process.env.HOSTNAME = "0.0.0.0";
+console.log(process.env.HOSTNAME)
 
 // Start Next.js server
 require("./.next/standalone/server.js");
@@ -86,10 +87,10 @@ const SMTP_PORT = parseInt(process.env.SMTP_PORT || "587", 10);
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
 
-console.error("[bot] BOT_TOKEN:", BOT_TOKEN ? "set" : "MISSING");
-console.error("[bot] ADMIN_CHAT_ID:", ADMIN_CHAT_ID ? "set" : "MISSING");
-console.error("[bot] SUPABASE_URL:", process.env.SUPABASE_URL ? "set" : "MISSING");
-console.error("[bot] SUPABASE_ANON_KEY:", process.env.SUPABASE_ANON_KEY ? "set" : "MISSING");
+console.log("[bot] BOT_TOKEN:", BOT_TOKEN ? "set" : "MISSING");
+console.log("[bot] ADMIN_CHAT_ID:", ADMIN_CHAT_ID ? "set" : "MISSING");
+console.log("[bot] SUPABASE_URL:", process.env.SUPABASE_URL ? "set" : "MISSING");
+console.log("[bot] SUPABASE_ANON_KEY:", process.env.SUPABASE_ANON_KEY ? "set" : "MISSING");
 
 if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
   console.warn("Missing BOT_TOKEN or ADMIN_CHAT_ID — Telegram bot will not start.");

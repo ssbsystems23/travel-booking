@@ -5,9 +5,11 @@ const fs = require("fs");
 const ROOT_DIR = __dirname;
 
 // --- File logging: write all console output to public/app.log ---
-const standalonePublic = path.join(ROOT_DIR, ".next", "standalone", "public");
+const standalonePublic = path.join(ROOT_DIR, "public");
+console.error(standalonePublic)
 const publicDir = fs.existsSync(standalonePublic) ? standalonePublic : path.join(ROOT_DIR, "public");
 const logPath = path.join(publicDir, "app.log");
+console.log(logPath);
 const logStream = fs.createWriteStream(logPath, { flags: "a" });
 
 function formatLog(level, args) {

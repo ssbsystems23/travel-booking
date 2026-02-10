@@ -5,12 +5,34 @@ const fs = require("fs");
 const ROOT_DIR = __dirname;
 
 // --- File logging: write all console output to public/app.log ---
-const standalonePublic = path.join(ROOT_DIR, "public");
+const standalonePublic = path.join(process.cwd(), "public_html", "logs");
 console.error(standalonePublic)
-const publicDir = fs.existsSync(standalonePublic) ? standalonePublic : path.join(ROOT_DIR, "public");
-const logPath = path.join(publicDir, "app.log");
+//const publicDir = fs.existsSync(standalonePublic) ? standalonePublic : path.join(ROOT_DIR, "public");
+const logPath = path.join(process.cwd(), "public_html", "logs", "app.log");
 console.log(logPath);
 const logStream = fs.createWriteStream(logPath, { flags: "a" });
+
+//const logPath = path.join(
+//  process.cwd(),
+//  "public_html",
+//  "logs",
+//  "app.log"
+//);
+
+//const logStream = fs.createWriteStream(logPath, { flags: "a" });
+
+// function writeLog(level, args) {
+//   const msg =
+//     `[${new Date().toISOString()}] [${level}] ` +
+//     args.map(a => (typeof a === "object" ? JSON.stringify(a) : a)).join(" ") +
+//     "\n";
+
+//   logStream.write(msg);
+// }
+
+// console.log = (...args) => writeLog("INFO", args);
+// console.error = (...args) => writeLog("ERROR", args);
+
 
 function formatLog(level, args) {
   const timestamp = new Date().toISOString();

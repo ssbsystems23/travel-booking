@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && node copy-standalone.js",
-    "start": "next start",
+    "start": "node server.js",
     "lint": "eslint"
   },
   "dependencies": {

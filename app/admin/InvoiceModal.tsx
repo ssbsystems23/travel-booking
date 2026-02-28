@@ -77,7 +77,9 @@ export default function InvoiceModal({ booking, onClose }: Props) {
     let cancelled = false;
     async function loadTemplate() {
       try {
-        const pdfjsLib = await import(/* webpackIgnore: true */ "/pdf.min.mjs");
+        const pdfPath = "/pdf.min.mjs";
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pdfjsLib: any = await (Function("p", "return import(p)")(pdfPath));
         pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
         const pdf = await pdfjsLib.getDocument("/bill.pdf").promise;

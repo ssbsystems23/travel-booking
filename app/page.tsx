@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import Image from "next/image";
 
 const SERVICES = ["Pharma/Corporate", "Vipassana", "Airport", "Outstation"];
 const CARS = ["Innova Crysta", "Ertiga", "Swift Dzire"];
 
 const SERVICE_CARDS = [
-  { image: "/card1.png", title: "Vipassana Pagoda Service", desc: "Special ride to Vipassana Golden Pagoda" },
-  { image: "/card2.png", title: "Airport Pickup & Drop", desc: "Timely service to and from the airport" },
-  { image: "/card3.png", title: "Outstation Tours", desc: "Comfortable rides out of town" },
-  { image: "/card4.png", title: "Innova Crysta / Ertiga / Swift Dzire", desc: "Choose from our diverse car fleet" },
+  { image: "/card1.png", title: "Vipassana Pagoda Service", desc: "Special ride to Vipassana Golden Pagoda", alt: "Vipassana Pagoda taxi service Mumbai - Shri Hanumant Travels" },
+  { image: "/card2.png", title: "Airport Pickup & Drop", desc: "Timely service to and from the airport", alt: "Airport pickup and drop cab service Mumbai" },
+  { image: "/card3.png", title: "Outstation Tours", desc: "Comfortable rides out of town", alt: "Outstation cab rental from Mumbai - Shri Hanumant Travels" },
+  { image: "/card4.png", title: "Innova Crysta / Ertiga / Swift Dzire", desc: "Choose from our diverse car fleet", alt: "Innova Crysta Ertiga Swift Dzire car rental Mumbai" },
 ];
 
 function getMinPickupIST(): string {
@@ -37,6 +37,56 @@ export default function BookingPage() {
   });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+
+  // Testimonial form state
+  const [testimonialName, setTestimonialName] = useState("");
+  const [testimonialRating, setTestimonialRating] = useState(0);
+  const [testimonialComment, setTestimonialComment] = useState("");
+  const [hoverRating, setHoverRating] = useState(0);
+  const [testimonialStatus, setTestimonialStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [testimonialMsg, setTestimonialMsg] = useState("");
+  const [testimonials, setTestimonials] = useState<{ id: number; name: string; rating: number; comment: string; created_at: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/testimonials")
+      .then((res) => res.json())
+      .then((data) => { if (data.success) setTestimonials(data.testimonials); })
+      .catch(() => {});
+  }, []);
+
+  async function handleTestimonialSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (testimonialRating === 0) {
+      setTestimonialStatus("error");
+      setTestimonialMsg("Please select a star rating.");
+      return;
+    }
+    setTestimonialStatus("loading");
+    setTestimonialMsg("");
+    try {
+      const res = await fetch("/api/testimonials", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: testimonialName, rating: testimonialRating, comment: testimonialComment }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTestimonialStatus("success");
+        setTestimonialMsg("Thank you for your review!");
+        const newEntry = { id: data.testimonialId, name: testimonialName, rating: testimonialRating, comment: testimonialComment, created_at: new Date().toISOString() };
+        setTestimonials((prev) => [newEntry, ...prev]);
+        setTestimonialName("");
+        setTestimonialRating(0);
+        setTestimonialComment("");
+      } else {
+        setTestimonialStatus("error");
+        setTestimonialMsg(data.error || "Something went wrong.");
+      }
+    } catch {
+      setTestimonialStatus("error");
+      setTestimonialMsg("Network error. Please try again.");
+    }
+  }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -93,7 +143,7 @@ export default function BookingPage() {
           <div className="flex flex-col items-center mb-1 sm:mb-4">
             <Image
               src="/logo.png"
-              alt="Logo"
+              alt="Shri Hanumant Travels - Taxi Service in Mumbai"
               width={80}
               height={80}
               className="w-24 h-14 sm:w-40 sm:h-25 object-contain"
@@ -238,7 +288,7 @@ export default function BookingPage() {
               <div className="w-2/5 flex-shrink-0 h-full">
                 <Image
                   src={card.image}
-                  alt={card.title}
+                  alt={card.alt}
                   width={300}
                   height={200}
                   className="w-full h-full object-cover"
@@ -280,6 +330,108 @@ export default function BookingPage() {
             ))}
           </div>
         </div>
+        {/* Leave a Review */}
+        <div className="w-full bg-white/90 backdrop-blur-sm rounded-2xl shadow-md px-4 py-3 sm:px-6 sm:py-4">
+          <h2 className="text-sm sm:text-base font-bold text-gray-900 text-center mb-2 sm:mb-3">Leave a Review</h2>
+          <form onSubmit={handleTestimonialSubmit} className="space-y-2 sm:space-y-3 max-w-xl mx-auto">
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-0.5 sm:mb-1">
+                Your Rating
+              </label>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    aria-label={`Rate ${star} out of 5`}
+                    onClick={() => setTestimonialRating(star)}
+                    onMouseEnter={() => setHoverRating(star)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    className="text-2xl sm:text-3xl focus:outline-none transition-colors leading-none"
+                  >
+                    <span className={(hoverRating || testimonialRating) >= star ? "text-yellow-400" : "text-gray-300"}>
+                      ★
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="testimonialName" className="block text-xs sm:text-sm font-medium text-gray-700 mb-0.5 sm:mb-1">
+                Name
+              </label>
+              <input
+                id="testimonialName"
+                type="text"
+                required
+                value={testimonialName}
+                onChange={(e) => setTestimonialName(e.target.value)}
+                placeholder="Your name"
+                className="w-full px-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-sm sm:text-base"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="testimonialComment" className="block text-xs sm:text-sm font-medium text-gray-700 mb-0.5 sm:mb-1">
+                Your Experience
+              </label>
+              <textarea
+                id="testimonialComment"
+                required
+                value={testimonialComment}
+                onChange={(e) => setTestimonialComment(e.target.value)}
+                placeholder="Share your experience (min. 10 characters)"
+                rows={3}
+                className="w-full px-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-sm sm:text-base resize-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={testimonialStatus === "loading"}
+              className="w-full py-2 sm:py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+            >
+              {testimonialStatus === "loading" ? "Submitting..." : "Submit Review"}
+            </button>
+          </form>
+
+          {testimonialStatus === "success" && (
+            <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-xs sm:text-sm text-center max-w-xl mx-auto">
+              {testimonialMsg}
+            </div>
+          )}
+          {testimonialStatus === "error" && (
+            <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-xs sm:text-sm text-center max-w-xl mx-auto">
+              {testimonialMsg}
+            </div>
+          )}
+        </div>
+
+        {/* Customer Testimonials */}
+        {testimonials.length > 0 && (
+          <div className="w-full bg-white/90 backdrop-blur-sm rounded-2xl shadow-md px-4 py-3 sm:px-6 sm:py-4">
+            <h2 className="text-sm sm:text-base font-bold text-gray-900 text-center mb-2 sm:mb-3">What Our Customers Say</h2>
+            <div className="flex flex-col gap-2 sm:gap-3">
+              {testimonials.map((t) => (
+                <div key={t.id} className="border border-gray-100 rounded-xl px-4 py-3 bg-white">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold text-gray-900 text-sm">{t.name}</span>
+                    <span className="flex gap-0.5 text-base leading-none">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span key={star} className={star <= t.rating ? "text-yellow-400" : "text-gray-300"}>★</span>
+                      ))}
+                    </span>
+                    <span className="text-xs text-gray-400 ml-auto">
+                      {new Date(t.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{t.comment}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

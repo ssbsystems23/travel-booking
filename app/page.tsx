@@ -28,9 +28,9 @@ function getLocationSuggestions(service: string): string[] {
 }
 
 const SERVICE_CARDS = [
-  { image: "/card1.png", title: "Vipassana Pagoda Service", desc: "Special ride to Vipassana Golden Pagoda", alt: "Vipassana Pagoda taxi service Mumbai - Shri Hanumant Travels" },
+  { image: "/card1.png", title: "Vipassana Pagoda Service", desc: "Special ride to Vipassana Golden Pagoda", alt: "Vipassana Pagoda taxi service Mumbai - Sri Hanumanth Tours and Travels" },
   { image: "/card2.png", title: "Airport Pickup & Drop", desc: "Timely service to and from the airport", alt: "Airport pickup and drop cab service Mumbai" },
-  { image: "/card3.png", title: "Outstation Tours", desc: "Comfortable rides out of town", alt: "Outstation cab rental from Mumbai - Shri Hanumant Travels" },
+  { image: "/card3.png", title: "Outstation Tours", desc: "Comfortable rides out of town", alt: "Outstation cab rental from Mumbai - Sri Hanumanth Tours and Travels" },
   { image: "/card4.png", title: "Innova Crysta / Ertiga / Swift Dzire", desc: "Choose from our diverse car fleet", alt: "Innova Crysta Ertiga Swift Dzire car rental Mumbai" },
 ];
 
@@ -197,7 +197,7 @@ export default function BookingPage() {
           <div className="flex flex-col items-center mb-1 sm:mb-4">
             <Image
               src="/logo.png"
-              alt="Shri Hanumant Travels - Taxi Service in Mumbai"
+              alt="Sri Hanumanth Tours and Travels - Taxi Service in Mumbai"
               width={80}
               height={80}
               className="w-24 h-14 sm:w-40 sm:h-25 object-contain"
@@ -401,7 +401,7 @@ export default function BookingPage() {
 
         {/* About Us */}
         <div className="w-full bg-white/90 backdrop-blur-sm rounded-2xl shadow-md px-4 py-3 sm:px-6 sm:py-4">
-          <h2 className="text-sm sm:text-base font-bold text-gray-900 text-center mb-2 sm:mb-3">About Shri Hanumant Travels</h2>
+          <h2 className="text-sm sm:text-base font-bold text-gray-900 text-center mb-2 sm:mb-3">About Sri Hanumanth Tours and Travels</h2>
           <p className="text-xs sm:text-sm text-gray-600 text-center mb-3 sm:mb-4 max-w-2xl mx-auto leading-relaxed">
             A trusted cab service in Mumbai with years of experience in corporate, airport, and outstation travel. We are committed to providing safe, reliable, and comfortable rides at affordable prices.
           </p>

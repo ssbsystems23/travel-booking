@@ -9,16 +9,20 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Shri Hanumant Travels | Taxi Service in Mumbai | Cab Booking Mumbai",
+  metadataBase: new URL("https://srihtt.in"),
+  title: {
+    default: "Sri Hanumanth Tours and Travels | Taxi Service in Mumbai | Cab Booking Mumbai",
+    template: "%s | Sri Hanumant Travels",
+  },
   description:
-    "Book affordable AC taxi & cab service in Mumbai with Shri Hanumant Travels. Local & outstation car rental, airport pickup & drop. Innova Crysta, Ertiga, Swift Dzire. Call 8779300154.",
+    "Book affordable AC taxi & cab service in Mumbai with Sri Hanumanth Tours and Travels. Local & outstation car rental, airport pickup & drop. Innova Crysta, Ertiga, Swift Dzire. Call 8779300154.",
   keywords: [
     "taxi service in mumbai",
     "cab booking mumbai",
     "car rental mumbai",
-    "shri hanumant travels",
-    "shri hanumanth tours and travels",
-    "shri hanumanth travels",
+    "Sri hanumant travels",
+    "Sri hanumanth tours and travels",
+    "Sri hanumanth travels",
     "airport taxi mumbai",
     "outstation cab mumbai",
     "local cab mumbai",
@@ -30,19 +34,19 @@ export const metadata: Metadata = {
     "cab near me mumbai",
     "vipassana pagoda taxi",
   ],
-  authors: [{ name: "Shri Hanumant Travels" }],
+  authors: [{ name: "Sri Hanumanth Tours and Travels" }],
   openGraph: {
-    title: "Shri Hanumant Travels | Taxi & Cab Service in Mumbai",
+    title: "Sri Hanumanth Tours and Travels | Taxi & Cab Service in Mumbai",
     description:
       "Book affordable AC taxi & cab service in Mumbai. Local & outstation car rental, airport pickup & drop. Call 8779300154.",
     url: "https://srihtt.in",
-    siteName: "Shri Hanumant Travels",
+    siteName: "Sri Hanumanth Tours and Travels",
     locale: "en_IN",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Shri Hanumant Travels | Taxi Service in Mumbai",
+    title: "Sri Hanumanth Tours and Travels | Taxi Service in Mumbai",
     description:
       "Book affordable AC taxi & cab service in Mumbai. Local & outstation, airport pickup. Call 8779300154.",
   },
@@ -68,12 +72,28 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Sri Hanumanth Tours and Travels",
+              url: "https://srihtt.in",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: "https://srihtt.in/?q={search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
               "@type": "LocalBusiness",
-              name: "Shri Hanumant Travels",
+              name: "Sri Hanumanth Tours and Travels",
               alternateName: [
-                "Shri Hanumanth Tours and Travels",
-                "Shri Hanumanth Travels",
-                "Shri Hanumant Tours and Travels",
+                "Sri Hanumanth Tours and Travels",
+                "Sri Hanumanth Travels",
+                "Sri Hanumant Tours and Travels",
               ],
               description:
                 "AC car & taxi rental service in Mumbai. Local, outstation, and airport cab booking. Innova Crysta, Ertiga, Swift Dzire.",

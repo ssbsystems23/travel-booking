@@ -6,9 +6,9 @@ const getSupabase = require("@/lib/db");
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, mobile, emailId, pickupDatetime, service, car } = body;
+    const { name, mobile, emailId, pickupDatetime, pickupLocation, dropLocation, service, car } = body;
 
-    if (!name || !mobile || !emailId || !pickupDatetime || !service || !car) {
+    if (!name || !mobile || !emailId || !pickupDatetime || !pickupLocation || !dropLocation || !service || !car) {
       return NextResponse.json(
         { success: false, error: "All fields are required." },
         { status: 400 }
@@ -43,6 +43,8 @@ export async function POST(request: Request) {
         mobile,
         email_id: emailId,
         pickup_datetime: pickupDatetime,
+        pickup_location: pickupLocation,
+        drop_location: dropLocation,
         service,
         car,
         status: "PENDING",

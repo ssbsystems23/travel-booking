@@ -9,6 +9,7 @@ const SMTP_HOST = process.env.SMTP_HOST;
 const SMTP_PORT = parseInt(process.env.SMTP_PORT || "587", 10);
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
+const SMTP_FROM = process.env.SMTP_FROM || SMTP_USER;
 
 if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
   console.error("Missing BOT_TOKEN or ADMIN_CHAT_ID in .env.local");
@@ -53,6 +54,8 @@ async function sendBookingEmail(booking, status) {
     <p>Your booking request <strong>#${booking.id}</strong> has been <strong>${isConfirmed ? "confirmed" : "rejected"}</strong>.</p>
     <table style="border-collapse:collapse;">
       <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Pickup</td><td>${booking.pickup_datetime}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Pickup Location</td><td>${booking.pickup_location}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Drop Location</td><td>${booking.drop_location}</td></tr>
       <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Service</td><td>${booking.service}</td></tr>
       <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Car</td><td>${booking.car}</td></tr>
     </table>
@@ -62,7 +65,7 @@ async function sendBookingEmail(booking, status) {
 
   try {
     await transporter.sendMail({
-      from: SMTP_USER,
+      from: SMTP_FROM,
       to: booking.email_id,
       subject,
       html,
@@ -98,6 +101,8 @@ async function checkNewBookings() {
       `Mobile: ${booking.mobile}\n` +
       `Email: ${booking.email_id}\n` +
       `Pickup: ${booking.pickup_datetime}\n` +
+      `Pickup Location: ${booking.pickup_location}\n` +
+      `Drop Location: ${booking.drop_location}\n` +
       `Service: ${booking.service}\n` +
       `Car: ${booking.car}\n` +
       `Status: ${booking.status}`;
@@ -166,6 +171,8 @@ bot.on("callback_query", async (query) => {
       `Mobile: ${booking.mobile}\n` +
       `Email: ${booking.email_id}\n` +
       `Pickup: ${booking.pickup_datetime}\n` +
+      `Pickup Location: ${booking.pickup_location}\n` +
+      `Drop Location: ${booking.drop_location}\n` +
       `Service: ${booking.service}\n` +
       `Car: ${booking.car}`;
 

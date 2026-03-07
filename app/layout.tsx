@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
+import AdminLink from "./AdminLink";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -124,12 +125,7 @@ export default function RootLayout({
       </head>
       <body className={`${geistSans.variable} font-sans antialiased`}>
         <div className="relative">
-          <a
-            href="/admin"
-            className="absolute top-3 right-3 z-50 px-3 py-1.5 bg-white/80 backdrop-blur-sm text-gray-700 text-xs font-medium rounded-lg hover:bg-white transition-colors shadow-sm"
-          >
-            Admin
-          </a>
+          <AdminLink />
           {children}
         </div>
       </body>

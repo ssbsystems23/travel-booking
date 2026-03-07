@@ -9,6 +9,8 @@
 //   pickup_datetime TEXT NOT NULL,
 //   service TEXT NOT NULL,
 //   car TEXT NOT NULL,
+//   pickup_location TEXT NOT NULL DEFAULT '',
+//   drop_location TEXT NOT NULL DEFAULT '',
 //   status TEXT DEFAULT 'PENDING',
 //   notified BOOLEAN DEFAULT FALSE,
 //   created_at TIMESTAMPTZ DEFAULT NOW()

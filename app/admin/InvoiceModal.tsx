@@ -43,9 +43,12 @@ export default function InvoiceModal({ booking, onClose }: Props) {
 
   const [form, setForm] = useState({
     msName: booking?.name ?? "",
+    service: booking?.service ?? "",
     billDate: today,
     driverName: "",
     carNo: booking?.car ?? "",
+    local: "",
+    outStation: "",
     pickupArea: "",
     pickupTime,
     pickupDate,
@@ -155,7 +158,7 @@ export default function InvoiceModal({ booking, onClose }: Props) {
 
       // ── Overlay text at the positions of the dashes ──
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(11);
+      doc.setFontSize(14);
       doc.setTextColor(0, 0, 0);
 
       // Helper: place text at absolute pt position on the page
@@ -170,7 +173,7 @@ export default function InvoiceModal({ booking, onClose }: Props) {
         }
         // Reset
         doc.setFont("helvetica", "normal");
-        doc.setFontSize(11);
+        doc.setFontSize(14);
       };
 
       // ── Coordinates calibrated to bill.pdf (A4 ≈ 595 × 842 pt) ──
@@ -223,6 +226,8 @@ export default function InvoiceModal({ booking, onClose }: Props) {
 
       // M/s ___ (y≈207)
       put(form.msName, 45, 210, {bold: true});
+      // Service ___ (y≈237, below M/s)
+      put(form.service, 45, 237, {bold: true});
       // Bill No.: ___ (top-right, y≈207)
       put(String(invoiceId), 525, 207, { bold: true });
       // Date : __ / __ / (y≈237) — cover the "/ /" slashes from the template
@@ -234,6 +239,11 @@ export default function InvoiceModal({ booking, onClose }: Props) {
       put(form.driverName, 115, 293, {bold: true});
       // Car No.: ___ (y≈325)
       put(form.carNo, 82, 318, {bold: true});
+
+      // Local (8h x 80km): ___ (y≈348)
+      put(form.local, 125, 344, {bold: true});
+      // Out Station: ___ (y≈373)
+      put(form.outStation, 120, 368, {bold: true});
 
       // Pick Up : ___ (Area Name) (y≈415)
       put(form.pickupArea, 95, 415, {bold: true});
@@ -252,8 +262,8 @@ export default function InvoiceModal({ booking, onClose }: Props) {
       put(form.garageKmEnd, 465, 562, {bold: true});
 
       // Star Hours : ___  To End Hours: ___  Total Hours: ___ (y≈587)
-      put(form.startHours, 100, 587, {bold: true});
-      put(form.endHours, 255, 587, {bold: true});
+      put(form.startHours, 98, 587, {bold: true});
+      put(form.endHours, 245, 587, {bold: true});
       put(form.totalHours, 385, 587, {bold: true});
 
       // Extra K.M. ___  Extra Hours ___ (y≈612)
@@ -272,7 +282,7 @@ export default function InvoiceModal({ booking, onClose }: Props) {
       put(form.toll, 65, 712, {bold: true});
 
       // TOTAL (right-aligned in AMOUNT column, y≈747)
-      put(form.totalAmount, 495, 735, { bold: true, size: 14, right: true });
+      put(form.totalAmount, W - 30, 735, { bold: true, size: 16, right: true });
 
 
       doc.save(`invoice-${invoiceId}.pdf`);
@@ -324,6 +334,11 @@ export default function InvoiceModal({ booking, onClose }: Props) {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Service</label>
+                <input name="service" value={form.service} onChange={handleChange} placeholder="e.g. Airport, Outstation"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Bill Date</label>
                 <input name="billDate" value={form.billDate} onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -336,6 +351,16 @@ export default function InvoiceModal({ booking, onClose }: Props) {
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Car No.</label>
                 <input name="carNo" value={form.carNo} onChange={handleChange} placeholder="MH-04-XX-0000"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Local (8h x 80km)</label>
+                <input name="local" value={form.local} onChange={handleChange} placeholder="e.g. 8h x 80km"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Out Station</label>
+                <input name="outStation" value={form.outStation} onChange={handleChange} placeholder="e.g. destination"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>

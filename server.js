@@ -173,6 +173,8 @@ if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
           `Mobile: ${booking.mobile}\n` +
           `Email: ${booking.email_id}\n` +
           `Pickup: ${booking.pickup_datetime}\n` +
+          `Pickup Location: ${booking.pickup_location}\n` +
+          `Drop Location: ${booking.drop_location}\n` +
           `Service: ${booking.service}\n` +
           `Car: ${booking.car}\n` +
           `Status: ${booking.status}`;
@@ -238,6 +240,8 @@ if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
           `Mobile: ${booking.mobile}\n` +
           `Email: ${booking.email_id}\n` +
           `Pickup: ${booking.pickup_datetime}\n` +
+          `Pickup Location: ${booking.pickup_location}\n` +
+          `Drop Location: ${booking.drop_location}\n` +
           `Service: ${booking.service}\n` +
           `Car: ${booking.car}`;
 

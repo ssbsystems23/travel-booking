@@ -4,7 +4,7 @@ import { useState, FormEvent, useEffect } from "react";
 import Image from "next/image";
 
 const SERVICES = ["Pharma/Corporate", "Vipassana", "Airport", "Outstation"];
-const CARS = ["Innova Crysta", "Ertiga", "Swift Dzire"];
+const CARS = ["Innova Crysta", "Ertiga", "Swift Dzire", "Bus", "TT (Tempo Traveller)"];
 
 const MUMBAI_LOCATIONS = [
   "Dadar", "Andheri", "Bandra", "BKC", "Lower Parel", "Thane", "Navi Mumbai",

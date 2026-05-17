@@ -73,7 +73,7 @@ process.env.HOSTNAME = "0.0.0.0";
 console.log(process.env.HOSTNAME)
 
 // Start Next.js server
-require("./.next/standalone/server.js");
+require("./.next/standalone/travel-booking/server.js");
 
 // --- Telegram Bot (runs in the same process) ---
 

@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 
 // Save root directory before standalone server changes cwd
 const ROOT_DIR = __dirname;
@@ -72,8 +73,12 @@ scheduleNightlyCleanup();
 process.env.HOSTNAME = "0.0.0.0";
 console.log(process.env.HOSTNAME)
 
-// Start Next.js server
-require("./.next/standalone/travel-booking/server.js");
+// Start Next.js server. The standalone output is nested one level deeper
+// (e.g. .next/standalone/travel-booking) when Next.js infers a workspace
+// root above the project, flat otherwise — resolve whichever exists.
+const flatServer = path.join(ROOT_DIR, ".next", "standalone", "server.js");
+const nestedServer = path.join(ROOT_DIR, ".next", "standalone", "travel-booking", "server.js");
+require(fs.existsSync(flatServer) ? flatServer : nestedServer);
 
 // --- Telegram Bot (runs in the same process) ---
 
